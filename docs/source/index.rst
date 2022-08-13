@@ -6,6 +6,7 @@ pdmetrics
   :caption: Contents:
 
   core/metrics
+  syn/classification
 
 
 
