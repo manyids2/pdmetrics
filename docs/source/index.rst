@@ -5,8 +5,8 @@ pdmetrics
   :maxdepth: 2
   :caption: Contents:
 
-  core/metrics
-  syn/classification
+  core/index
+  syn/index
 
 
 
