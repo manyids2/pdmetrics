@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>pdmetrics</title>
+</head>
+
+<body>
+  <h1>pdmetrics</h1>
+  <ul id="scores">
+    {% for rowid in rowids %}
+    <li>
+      {{ scores[rowid].f1 }} -> <br />
+      {{ dataset[rowid].preds_overlay_file }} <br />
+      {{ dataset[rowid].target_overlay_file }} <br />
+    </li>
+    {% endfor %}
+  </ul>
+</body>
+
+</html>

@@ -1,21 +1,31 @@
 from pathlib import Path
+from typing import Union
 import pandas as pd
 import sqlite3
 
 
-def save_df(df: pd.DataFrame, db_path: Path, table: str, verbose: bool = False):
-    con = sqlite3.connect(db_path.absolute())
-    df.to_sql(table, con)
+def save_df(
+    df: pd.DataFrame,
+    db_path: Union[Path, str],
+    table: str,
+    if_exists: str = "replace",
+    index: bool = False,
+    verbose: bool = False,
+):
+    con = sqlite3.connect(Path(db_path).absolute())
+    df.to_sql(table, con, if_exists=if_exists, index=index)
     if verbose:
-        print(f"Saved => {table} -> {db_path}\n\n{df}\n")
+        print(f"\nSaved => {table} -> {db_path}\n\n{df}\n")
     return df
 
 
-def load_df(db_path: Path, table: str, verbose: bool = False) -> pd.DataFrame:
-    con = sqlite3.connect(db_path.absolute())
-    df = pd.read_sql_table(table, con)
+def load_df(
+    db_path: Union[Path, str], table: str, verbose: bool = False
+) -> pd.DataFrame:
+    con = sqlite3.connect(Path(db_path).absolute())
+    df = pd.read_sql_query(f"SELECT * from ({table})", con)
     if verbose:
-        print(f"Loaded => {table} -> {db_path}\n\n{df}\n")
+        print(f"\nLoaded => {table} -> {db_path}\n\n{df}\n")
     return df
 
 

@@ -1,7 +1,9 @@
 import numpy as np
+import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 from pdmetrics.metrics.base import pdMetrics
+from pdmetrics.syn.data import load_df
 
 
 def recover_tp_fp_tn_fn(scores, labels, threshold):
@@ -16,7 +18,7 @@ def recover_tp_fp_tn_fn(scores, labels, threshold):
 
 
 def compute_f1(tp, fp, tn, fn, eps=1e-5):
-    """Computes f1 related stats, from only total tp, fp, tn, fn."""
+    """Computes f1 related stats, from only total tp, fp, tn, fn, n."""
     _tp = tp.sum()
     _fp = fp.sum()
     _tn = tn.sum()
@@ -38,15 +40,16 @@ def compute_f1(tp, fp, tn, fn, eps=1e-5):
 
     f1 = 2 * (precision * recall) / (precision + recall + eps)
     stats = {
-        "tp": _tp,
-        "fp": _fp,
-        "tn": _tn,
-        "fn": _fn,
-        "tpr": tpr,
-        "fpr": fpr,
-        "recall": recall,
-        "precision": precision,
-        "f1": f1,
+        "n": int(np.prod(tp.shape)),
+        "tp": int(_tp),
+        "fp": int(_fp),
+        "tn": int(_tn),
+        "fn": int(_fn),
+        "tpr": float(tpr),
+        "fpr": float(fpr),
+        "recall": float(recall),
+        "precision": float(precision),
+        "f1": float(f1),
     }
     return stats
 
@@ -54,8 +57,6 @@ def compute_f1(tp, fp, tn, fn, eps=1e-5):
 def compute_over_example(example: Dict[str, np.ndarray], threshold: float):
     scores = example["preds"].flatten().astype(np.int32)
     labels = example["target"].flatten().astype(np.int32)
-    print(scores)
-    print(labels)
     tp, fp, tn, fn = recover_tp_fp_tn_fn(scores, labels, threshold)
     stats = compute_f1(tp, fp, tn, fn)
     return stats
@@ -82,10 +83,25 @@ class pdF1(pdMetrics):
 
     Tracks the following metrics::
 
-        "f1", "precision", "recall", "tp", "fp", "fn"
+        "f1", "precision", "recall", "tp", "fp", "fn", "n"
     """
     name: str = "f1"
-    tracked: List[str] = ["f1", "precision", "recall", "tp", "fp", "fn"]
+    tracked: List[str] = ["f1", "precision", "recall", "tp", "fp", "tn", "fn", "n"]
+
+    @classmethod
+    def load_from_db(cls, db_path: Union[Path, str]):
+        _labels = load_df(db_path, "labels")
+        labels = {}
+        for _, row in _labels.iterrows():
+            labels[row.class_idx] = row.label
+        _threshold = load_df(db_path, "threshold")
+        threshold = _threshold.iloc[0].threshold
+        inst = cls(db_path, labels, threshold)
+
+        df = load_df(db_path, "f1")
+        inst.df = df
+        inst.df.set_index("rowid", inplace=True)
+        return inst
 
     def __init__(
         self, db_path: Union[Path, str], labels: Dict[int, str], threshold: float = 0.5
@@ -95,9 +111,22 @@ class pdF1(pdMetrics):
         self.num_classes = len(labels)
         self.threshold = threshold
 
-    def compute_over_example(self, example: Dict[str, np.ndarray]):
+        self.reset_rows()
+
+    def reset_rows(self) -> None:
+        self.rows = []
+        self.df = pd.DataFrame(columns=["rowid", *self.tracked])
+        self.df.set_index("rowid", inplace=True)
+
+    def compute_over_example(
+        self, example: Dict[str, np.ndarray], rowid: Optional[int] = None
+    ):
         """Compute binary stats."""
-        return compute_over_example(example, self.threshold)
+        stats = compute_over_example(example, self.threshold)
+        if rowid is not None:
+            for k, v in stats.items():
+                self.df.at[rowid, k] = v
+        return stats
 
     def compute_over_example_multiclass(self, example: Dict[str, np.ndarray]):
         """Compute multiclass stats in one vs all manner.

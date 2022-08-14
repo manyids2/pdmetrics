@@ -1,38 +1,58 @@
-from rich import print
-from pdmetrics.syn.data import pdData
-from pdmetrics.syn.classification import Classification
+from pathlib import Path
+
 from pdmetrics.metrics.f1 import pdF1
+from pdmetrics.syn.data import load_df
 
-if __name__ == "__main__":
-    columns = ["image_id", "image_file", "mask_file"]
-    data = pdData.from_columns(columns)
-    print(data)
+data_dir = Path('/tmp/classification')
 
-    cc = Classification(shape=[2, 3], num_classes=2)
-    example = cc.get_preds_target(mtype="random")
-    print(example)
+db_path = Path("/tmp/classification/metrics.db")
+f1 = pdF1.load_from_db(db_path)
+dset = load_df(f1.db_path, "dataset")
+print(f1)
 
-    labels = {0: "false", 1: "true"}
-    db_path = "/tmp/f1.db"
-    f1 = pdF1(db_path, labels)
-    print(f1)
+rowids = [int(r) for r in dset["rowid"]]
 
-    stats = f1.compute_over_example(example)
-    print(stats)
+scores = {}
+for _, row in f1.df.iterrows():
+    _row = dict(row.to_dict())
+    _row.update({"rowid": row.name})
+    scores[row.name] = _row
 
-    stats = f1.compute_over_example_multiclass(example)
-    print(stats)
+dataset = {}
+for _, row in dset.iterrows():
+    _row = dict(row.to_dict())
+    _row.update({"rowid": row.name})
+    dataset[row.name] = _row
 
-    # All correct
-    example = cc.get_preds_target(mtype="all_correct")
-    print(example)
 
-    stats = f1.compute_over_example(example)
-    print(stats)
+from jinja2 import Environment, PackageLoader, select_autoescape
 
-    # All wrong
-    example = cc.get_preds_target(mtype="all_wrong")
-    print(example)
+env = Environment(loader=PackageLoader("pdmetrics"), autoescape=select_autoescape())
+template = env.get_template("index.html")
+# print(template.render(scores=scores))
 
-    stats = f1.compute_over_example(example)
-    print(stats)
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+
+app = FastAPI()
+
+
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    return template.render(rowids=rowids, scores=scores, dataset=dataset)
+
+
+@app.get("/{filename}/{table}", response_class=HTMLResponse)
+async def selected(filename: str, table: str):
+    sel_path = Path(f"/tmp/classification/{filename}.db")
+    dset = load_df(sel_path, table)
+
+    rows = {}
+    for _, row in dset.iterrows():
+        _row = dict(row.to_dict())
+        _row.update({"rowid": row.name})
+        rows[row.name] = _row
+    rowids = list(rows.keys())
+
+    template = env.get_template("rows.html")
+    return template.render(rowids=rowids, rows=rows)
