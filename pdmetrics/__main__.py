@@ -12,9 +12,13 @@ if __name__ == "__main__":
     example = cc.get_preds_target(mtype="random")
     print(example)
 
+    labels = {0: "false", 1: "true"}
     db_path = "/tmp/f1.db"
-    f1 = pdF1(db_path)
+    f1 = pdF1(db_path, labels)
     print(f1)
 
     stats = f1.compute_over_example(example)
+    print(stats)
+
+    stats = f1.compute_over_example_multiclass(example)
     print(stats)
