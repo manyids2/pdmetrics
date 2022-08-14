@@ -6,7 +6,9 @@ pdmetrics
   :caption: Contents:
 
   core/index
+  metrics/index
   syn/index
+  utils/index
 
 
 
