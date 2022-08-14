@@ -16,3 +16,15 @@ Output::
     batch_stats: 
       f1_avg, f1_agg, tp, fp, fn, n
 
+Usage::
+
+    # Compute the metrics
+    from pdmetrics.metrics import pdF1
+
+    metrics = pdF1('/tmp/f1.db')
+
+    stats = metrics.one_example(example)
+    metrics.print(stats)
+
+    # Check the dataframe
+    metrics.print()

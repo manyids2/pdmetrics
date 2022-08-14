@@ -20,6 +20,11 @@ def load_df(db_path: Path, table: str, verbose: bool = False) -> pd.DataFrame:
 
 
 class pdData:
+    @classmethod
+    def from_columns(cls, columns):
+        df = pd.DataFrame(columns=columns)
+        return cls(df)
+
     def __init__(self, df: pd.DataFrame):
         self.df = df
 
