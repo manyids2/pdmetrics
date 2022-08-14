@@ -1,5 +1,5 @@
-from pdmetrics.core.metrics import Metrics
+from .core.metrics import pdMetrics
 
 __all__ = [
-    "Metrics",
+    "pdMetrics",
 ]

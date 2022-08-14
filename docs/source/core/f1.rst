@@ -1,0 +1,18 @@
+F1 score
+========
+
+Compute ``f1`` score for binary labels.
+
+Inputs ( for any ``shape`` )::
+
+    preds: ndarray, shape, bool \in {True, False}
+    target: ndarray, shape, bool \in {True, False}
+
+Output::
+
+    tracked: 
+      f1, f1, tp, fp, fn, n
+
+    batch_stats: 
+      f1_avg, f1_agg, tp, fp, fn, n
+
