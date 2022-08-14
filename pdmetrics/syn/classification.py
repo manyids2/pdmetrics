@@ -12,7 +12,7 @@ def get_all_zeros(shape: List[int], _: int) -> Dict[str, np.ndarray]:
 
 
 def get_all_correct(shape: List[int], num_classes: int) -> Dict[str, np.ndarray]:
-    preds = np.random.randint(low=0, high=num_classes - 1, size=shape)
+    preds = np.random.randint(low=0, high=num_classes, size=shape)
     target = preds.copy()
     return {
         "preds": preds,

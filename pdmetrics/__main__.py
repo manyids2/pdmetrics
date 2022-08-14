@@ -22,3 +22,17 @@ if __name__ == "__main__":
 
     stats = f1.compute_over_example_multiclass(example)
     print(stats)
+
+    # All correct
+    example = cc.get_preds_target(mtype="all_correct")
+    print(example)
+
+    stats = f1.compute_over_example(example)
+    print(stats)
+
+    # All wrong
+    example = cc.get_preds_target(mtype="all_wrong")
+    print(example)
+
+    stats = f1.compute_over_example(example)
+    print(stats)
