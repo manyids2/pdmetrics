@@ -8,4 +8,5 @@ Create easy test cases for metrics, including corner cases.
   :maxdepth: 2
   :caption: Contents:
 
+  data
   classification

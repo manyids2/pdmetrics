@@ -1,5 +1,5 @@
 from rich import print
-from pdmetrics.core.metrics import pdMetrics
+from pdmetrics.metrics.base import pdMetrics
 
 
 def test_create():

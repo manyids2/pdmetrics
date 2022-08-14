@@ -5,7 +5,6 @@ pdmetrics
   :maxdepth: 2
   :caption: Contents:
 
-  core/index
   metrics/index
   syn/index
   utils/index

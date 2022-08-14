@@ -1,13 +1,9 @@
-from .core.metrics import pdMetrics
-from .core.data import pdData
-from . import syn as syn
-from .utils import draw as draw
-from .utils.draw import COLORS
+import pdmetrics.syn as syn
+import pdmetrics.metrics as metrics
+from pdmetrics.utils import draw as draw
 
 __all__ = [
-    "pdMetrics",
-    "pdData",
     "syn",
+    "metrics",
     "draw",
-    "COLORS",
 ]

@@ -5,4 +5,5 @@ Supported Metrics
   :maxdepth: 2
   :caption: Contents:
 
+  base
   f1

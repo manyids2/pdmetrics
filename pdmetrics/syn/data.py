@@ -29,3 +29,6 @@ class pdData:
         self.df = df
 
         # Set row type depending on column
+
+    def __repr__(self) -> str:
+        return repr(self.df)

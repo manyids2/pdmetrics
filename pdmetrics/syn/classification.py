@@ -30,8 +30,8 @@ def get_all_wrong(shape: List[int], num_classes: int) -> Dict[str, np.ndarray]:
 
 
 def get_random(shape: List[int], num_classes: int) -> Dict[str, np.ndarray]:
-    preds = np.random.randint(low=1, high=num_classes, size=shape)
-    target = np.random.randint(low=1, high=num_classes, size=shape)
+    preds = np.random.randint(low=0, high=num_classes, size=shape)
+    target = np.random.randint(low=0, high=num_classes, size=shape)
     return {
         "preds": preds,
         "target": target,
